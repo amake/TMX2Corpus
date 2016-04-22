@@ -24,7 +24,7 @@ setup(
         'Programming Language :: Python :: 2.7',
     ],
     keywords='tmx corpus conversion',
-    py_modules=['tmx2corpus'],
+    py_modules=['tmx2corpus', 'tokenizer', 'filter'],
     install_requires=['tinysegmenter'],
     entry_points={
         'console_scripts': [
