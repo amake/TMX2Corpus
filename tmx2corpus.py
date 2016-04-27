@@ -14,6 +14,7 @@ with subclasses of the Tokenizer or Filter objects.
 import sys
 import os
 import codecs
+import logging
 from tokenizer import DEFAULT_TOKENIZER, PyJaTokenizer
 from xml.etree import ElementTree
 
@@ -25,7 +26,7 @@ class Converter(object):
         self.suppress_count = 0
         self.output_files = {}
         self.output_path = os.getcwd()
-        print 'Output path:', self.output_path
+        logging.debug('Output path: %s', self.output_path)
     
     def __enter__(self):
         return self
@@ -47,9 +48,9 @@ class Converter(object):
             for tmx in files:
                 for bitext in extract_tmx(tmx):
                     self.__output(bitext)
-            print 'done'
+            logging.fine('done')
         finally:
-            print 'Suppressed %d pairs' % self.suppress_count
+            logging.fine('Suppressed %d pairs', self.suppress_count)
             
     def __output(self, bitext):
         for fltr in self.filters:
@@ -80,7 +81,7 @@ def get_files(path, ext):
 
 
 def extract_tmx(tmx):
-    print 'Extracting', os.path.basename(tmx)
+    logging.info('Extracting %s', os.path.basename(tmx))
     tree = ElementTree.parse(tmx)
     root = tree.getroot()
     for tu in root.getiterator('tu'):
@@ -96,8 +97,8 @@ def extract_tu(tu):
         if None not in (lang, text):
             bitext[lang] = text
     if len(bitext) != 2:
-        print 'TU had %d TUV(s). Skipping.' % len(bitext)
-        print '\t' + ElementTree.tostring(tu)
+        logging.debug('TU had %d TUV(s). Skipping.', len(bitext))
+        logging.debug('\t' + ElementTree.tostring(tu))
         return {}
     return bitext
 
@@ -107,20 +108,20 @@ def extract_tuv(tuv):
     if lang == None:
         lang = tuv.attrib.get('{http://www.w3.org/XML/1998/namespace}lang', None)
     if lang == None:
-        print 'TUV missing lang. Skipping.'
+        logging.debug('TUV missing lang. Skipping.')
         return None, None
     lang = normalize_lang(lang)
     segs = tuv.findall('seg')
     if len(segs) > 1:
-        print 'Multiple segs found in TUV. Skipping.'
+        logging.debug('Multiple segs found in TUV. Skipping.')
         return None, None
     text = extract_seg(segs[0])
     if text is None:
-        print 'TUV missing seg. Skipping.'
+        logging.debug('TUV missing seg. Skipping.')
         return None, None
     text = text.strip().replace('\n', '').replace('\r', '')
     if not len(text):
-        print 'TUV had blank seg. Skipping.'
+        logging.debug('TUV had blank seg. Skipping.')
         return None, None
     return lang, text
 
@@ -149,7 +150,7 @@ def convert(paths, tokenizers=[], bitext_filter=None):
     files = []
     for path in paths:
         if os.path.isdir(path):
-            print 'Queuing TMXs in ' + path
+            logging.info('Queuing TMXs in %s', path)
             files.extend(get_files(path, '.tmx'))
         elif os.path.isfile(path) and path.endswith('.tmx'):
             files.append(path)
@@ -159,7 +160,7 @@ def convert(paths, tokenizers=[], bitext_filter=None):
             converter.add_filter(bitext_filter)
             converter.convert(files)
     else:
-        print 'Please specify input files or paths.'
+        logging.error('Please specify input files or paths.')
         return 1
     return 0
 
