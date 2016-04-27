@@ -48,9 +48,9 @@ class Converter(object):
             for tmx in files:
                 for bitext in extract_tmx(tmx):
                     self.__output(bitext)
-            logging.fine('done')
+            logging.info('done')
         finally:
-            logging.fine('Suppressed %d pairs', self.suppress_count)
+            logging.info('Suppressed %d pairs', self.suppress_count)
             
     def __output(self, bitext):
         for fltr in self.filters:
