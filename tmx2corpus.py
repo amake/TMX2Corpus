@@ -148,18 +148,19 @@ def cleanup(output_files):
 
 
 def convert(paths, tokenizers=[], bitext_filter=None):
-    files = []
-    for path in paths:
+    files = set()
+    for path in sorted(set(os.path.abspath(p) for p in paths)):
         if os.path.isdir(path):
-            logging.info('Queuing TMXs in %s', path)
-            files.extend(get_files(path, '.tmx'))
+            tmxs = set(get_files(path, '.tmx'))
+            logging.info('Queuing %d TMX(s) in %s', len(tmxs), path)
+            files |= tmxs
         elif os.path.isfile(path) and path.endswith('.tmx'):
-            files.append(path)
+            files.add(path)
     if len(files):
         with Converter() as converter:
             converter.add_tokenizers(tokenizers)
             converter.add_filter(bitext_filter)
-            converter.convert(files)
+            converter.convert(sorted(files))
     else:
         logging.error('Please specify input files or paths.')
         return 1
