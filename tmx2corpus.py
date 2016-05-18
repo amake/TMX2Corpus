@@ -11,6 +11,7 @@ with subclasses of the Tokenizer or Filter objects.
 @author: aaron.madlon-kay
 '''
 
+import argparse
 import sys
 import os
 import codecs
@@ -166,7 +167,17 @@ def convert(paths, tokenizers=[], bitext_filter=None):
 
 
 def main():
-    convert(sys.argv[1:], tokenizers=[PyJaTokenizer()])
+    parser = argparse.ArgumentParser(description='Convert TMX files to '
+                                     'flat corpus files')
+    parser.add_argument('--verbose', '-v', action='count', default=0)
+    parser.add_argument('path', nargs='+')
+    args = parser.parse_args()
+
+    levels = [logging.WARNING, logging.INFO, logging.DEBUG]
+    level = levels[min(len(levels) - 1, args.verbose)]
+    logging.getLogger().setLevel(level)
+
+    convert(args.path, tokenizers=[PyJaTokenizer()])
 
 if __name__ == '__main__':
     sys.exit(main())
