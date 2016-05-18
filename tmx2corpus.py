@@ -25,6 +25,7 @@ class Converter(object):
         self.tokenizers = {}
         self.filters = []
         self.suppress_count = 0
+        self.output_lines = 0
         self.output_files = {}
         self.output_path = os.getcwd()
         logging.debug('Output path: %s', self.output_path)
@@ -45,12 +46,13 @@ class Converter(object):
             
     def convert(self, files):
         self.suppress_count = 0
-        try:
-            for tmx in files:
-                for bitext in extract_tmx(tmx):
-                    self.__output(bitext)
-            logging.info('done')
-        finally:
+        self.output_lines = 0
+        for tmx in files:
+            print('Extracting %s' % os.path.basename(tmx))
+            for bitext in extract_tmx(tmx):
+                self.__output(bitext)
+        logging.info('Output %d pairs', self.output_lines)
+        if self.suppress_count:
             logging.info('Suppressed %d pairs', self.suppress_count)
             
     def __output(self, bitext):
@@ -73,6 +75,8 @@ class Converter(object):
             out_file.write(text)
             out_file.write('\n')
 
+        self.output_lines += 1
+
 
 def get_files(path, ext):
     for root, dirs, files in os.walk(path):
@@ -82,7 +86,6 @@ def get_files(path, ext):
 
 
 def extract_tmx(tmx):
-    logging.info('Extracting %s', os.path.basename(tmx))
     tree = ElementTree.parse(tmx)
     root = tree.getroot()
     for tu in root.getiterator('tu'):
