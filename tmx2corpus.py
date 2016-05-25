@@ -18,6 +18,7 @@ import codecs
 import logging
 from tokenizer import DEFAULT_TOKENIZER, PyJaTokenizer
 from xml.etree import ElementTree
+from HTMLParser import HTMLParser
 
 
 class Converter(object):
@@ -123,7 +124,7 @@ def extract_tuv(tuv):
     if text is None:
         logging.debug('TUV missing seg. Skipping.')
         return None, None
-    text = text.strip().replace('\n', '').replace('\r', '')
+    text = clean_text(text)
     if not text:
         logging.debug('TUV had blank seg. Skipping.')
         return None, None
@@ -136,6 +137,13 @@ def extract_seg(seg):
         buffer.append(child.text)
         buffer.append(child.tail)
     return ''.join([piece for piece in buffer if piece != None])
+
+
+HTML_PARSER = HTMLParser()
+
+def clean_text(text):
+    text = text.strip().replace('\n', '').replace('\r', '')
+    return HTML_PARSER.unescape(text)
 
 
 def normalize_lang(lang):
