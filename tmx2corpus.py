@@ -124,7 +124,7 @@ def extract_tuv(tuv):
         logging.debug('TUV missing seg. Skipping.')
         return None, None
     text = text.strip().replace('\n', '').replace('\r', '')
-    if not len(text):
+    if not text:
         logging.debug('TUV had blank seg. Skipping.')
         return None, None
     return lang, text
@@ -159,7 +159,7 @@ def convert(paths, tokenizers=[], bitext_filter=None):
             files |= tmxs
         elif os.path.isfile(path) and path.endswith('.tmx'):
             files.add(path)
-    if len(files):
+    if files:
         with Converter() as converter:
             converter.add_tokenizers(tokenizers)
             converter.add_filter(bitext_filter)
