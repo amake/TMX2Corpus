@@ -87,12 +87,11 @@ def get_files(path, ext):
 
 
 def extract_tmx(tmx):
-    tree = ElementTree.parse(tmx)
-    root = tree.getroot()
-    for tu in root.getiterator('tu'):
-        bitext = extract_tu(tu)
-        if bitext != {}:
-            yield bitext
+    for event, elem in ElementTree.iterparse(tmx):
+        if elem.tag == 'tu':
+            bitext = extract_tu(elem)
+            if bitext:
+                yield bitext
 
 
 def extract_tu(tu):
