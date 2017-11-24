@@ -188,7 +188,7 @@ def main():
     level = levels[min(len(levels) - 1, args.verbose)]
     logging.getLogger().setLevel(level)
 
-    convert(args.path, tokenizers=[PyJaTokenizer()])
+    return convert(args.path, tokenizers=[PyJaTokenizer()])
 
 if __name__ == '__main__':
     sys.exit(main())
