@@ -30,21 +30,21 @@ class Converter(object):
         self.output_files = {}
         self.output_path = os.getcwd()
         logging.debug('Output path: %s', self.output_path)
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, type, value, traceback):
         cleanup(self.output_files)
-        
+
     def add_tokenizers(self, tokenizers):
         for tokenizer in tokenizers:
             self.tokenizers[tokenizer.lang] = tokenizer
-            
+
     def add_filter(self, bitext_filter):
         if bitext_filter is not None:
             self.filters.append(bitext_filter)
-            
+
     def convert(self, files):
         self.suppress_count = 0
         self.output_lines = 0
@@ -55,22 +55,23 @@ class Converter(object):
         logging.info('Output %d pairs', self.output_lines)
         if self.suppress_count:
             logging.info('Suppressed %d pairs', self.suppress_count)
-            
+
     def __output(self, bitext):
         for fltr in self.filters:
             if not fltr.filter(bitext):
                 self.suppress_count += 1
                 return
-            
+
         for lang, text in bitext.items():
             tokenizer = self.tokenizers.get(lang, DEFAULT_TOKENIZER)
             bitext['tok.' + lang] = tokenizer.tokenize(text)
-            
+
         for lang in bitext.keys():
             if lang not in self.output_files.keys():
                 self.output_files[lang] = codecs.open(os.path.join(self.output_path, 'bitext.' + lang),
                                                       'w',
                                                       encoding='utf-8')
+
         for lang, text in bitext.items():
             out_file = self.output_files[lang]
             out_file.write(text)
@@ -110,7 +111,8 @@ def extract_tu(tu):
 def extract_tuv(tuv):
     lang = tuv.attrib.get('lang', None)
     if lang == None:
-        lang = tuv.attrib.get('{http://www.w3.org/XML/1998/namespace}lang', None)
+        lang = tuv.attrib.get(
+            '{http://www.w3.org/XML/1998/namespace}lang', None)
     if lang == None:
         logging.debug('TUV missing lang. Skipping.')
         return None, None
@@ -189,6 +191,7 @@ def main():
     logging.getLogger().setLevel(level)
 
     return convert(args.path, tokenizers=[PyJaTokenizer()])
+
 
 if __name__ == '__main__':
     sys.exit(main())

@@ -36,7 +36,7 @@ class PyJaTokenizer(Tokenizer):
     def __init__(self):
         super(PyJaTokenizer, self).__init__('ja')
         self.ts = tinysegmenter.TinySegmenter()
-        
+
     def _tokenize(self, text):
         return self.ts.tokenize(text)
 
@@ -53,7 +53,7 @@ class PyEnTokenizer(Tokenizer):
             i = m.end()
         return tokens
 
-    
+
 DEFAULT_TOKENIZER = PyEnTokenizer()
 
 
