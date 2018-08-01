@@ -31,4 +31,5 @@ setup(
             'tmx2corpus=tmx2corpus:main',
         ],
     },
+    test_suite='./tmx2corpus_test.TestTMX2Corpus',
 )

@@ -50,6 +50,21 @@ class FileOutput(object):
         self.files.clear()
 
 
+class BufferOutput(object):
+    def __init__(self):
+        self.buckets = {}
+
+    def init(self, language):
+        if language not in self.buckets:
+            self.buckets[language] = []
+
+    def write(self, language, content):
+        self.buckets[language].append(content)
+
+    def cleanup(self):
+        pass
+
+
 class Converter(object):
     def __init__(self, output):
         self.tokenizers = {}
@@ -174,7 +189,7 @@ def normalize_lang(lang):
     return result
 
 
-def convert(paths, tokenizers=[], bitext_filter=None):
+def convert(paths, tokenizers=[], bitext_filter=None, output=None):
     files = set()
     for path in sorted(set(os.path.abspath(p) for p in paths)):
         if os.path.isdir(path):
@@ -184,7 +199,7 @@ def convert(paths, tokenizers=[], bitext_filter=None):
         elif os.path.isfile(path) and path.endswith('.tmx'):
             files.add(path)
     if files:
-        with Converter() as converter:
+        with Converter(output or FileOutput()) as converter:
             converter.add_tokenizers(tokenizers)
             converter.add_filter(bitext_filter)
             converter.convert(sorted(files))
