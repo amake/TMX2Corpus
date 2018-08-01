@@ -11,6 +11,7 @@ with subclasses of the Tokenizer or Filter objects.
 @author: aaron.madlon-kay
 '''
 
+from __future__ import print_function
 import argparse
 import sys
 import os
@@ -18,7 +19,13 @@ import codecs
 import logging
 from tokenizer import DEFAULT_TOKENIZER, PyJaTokenizer
 from xml.etree import ElementTree
-from HTMLParser import HTMLParser
+
+try:
+    from HTMLParser import HTMLParser
+    unescape = HTMLParser().unescape
+except ModuleNotFoundError:
+    import html
+    unescape = html.unescape
 
 
 class Converter(object):
@@ -62,7 +69,7 @@ class Converter(object):
                 self.suppress_count += 1
                 return
 
-        for lang, text in bitext.items():
+        for lang, text in list(bitext.items()):
             tokenizer = self.tokenizers.get(lang, DEFAULT_TOKENIZER)
             bitext['tok.' + lang] = tokenizer.tokenize(text)
 
@@ -134,17 +141,15 @@ def extract_tuv(tuv):
 
 def extract_seg(seg):
     buffer = [seg.text]
-    for child in seg.getchildren():
+    for child in seg:
         buffer.append(child.text)
         buffer.append(child.tail)
     return ''.join([piece for piece in buffer if piece != None])
 
 
-HTML_PARSER = HTMLParser()
-
 def clean_text(text):
     text = text.strip().replace('\n', '').replace('\r', '')
-    return HTML_PARSER.unescape(text)
+    return unescape(text)
 
 
 def normalize_lang(lang):

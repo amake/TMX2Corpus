@@ -4,6 +4,7 @@ Created on Dec 19, 2013
 @author: aaron.madlon-kay
 '''
 
+from __future__ import print_function
 import sys
 import os
 import re
@@ -61,7 +62,7 @@ def glom_urls(tokens):
     result = []
     in_url = False
     url = None
-    #print 'Before:', str(tokens)
+    # print('Before:', str(tokens))
     tokens.reverse()
     while len(tokens):
         tok = tokens.pop()
@@ -80,5 +81,5 @@ def glom_urls(tokens):
                 in_url = True
             else:
                 result.append(tok)
-    #print 'After:', str(result)
+    # print('After:', str(result))
     return result
