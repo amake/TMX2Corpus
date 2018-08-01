@@ -28,21 +28,41 @@ except ModuleNotFoundError:
     unescape = html.unescape
 
 
+class FileOutput(object):
+    def __init__(self, path=os.getcwd()):
+        self.files = {}
+        self.path = path
+        logging.debug('Output path: %s', self.path)
+
+    def init(self, language):
+        if language not in self.files:
+            self.files[language] = codecs.open(os.path.join(
+                self.path, 'bitext.' + language), 'w', encoding='utf-8')
+
+    def write(self, language, content):
+        out_file = self.files[language]
+        out_file.write(content)
+        out_file.write('\n')
+
+    def cleanup(self):
+        for out_file in self.files.values():
+            out_file.close()
+        self.files.clear()
+
+
 class Converter(object):
-    def __init__(self):
+    def __init__(self, output):
         self.tokenizers = {}
         self.filters = []
         self.suppress_count = 0
+        self.output = output
         self.output_lines = 0
-        self.output_files = {}
-        self.output_path = os.getcwd()
-        logging.debug('Output path: %s', self.output_path)
 
     def __enter__(self):
         return self
 
     def __exit__(self, type, value, traceback):
-        cleanup(self.output_files)
+        self.output.cleanup()
 
     def add_tokenizers(self, tokenizers):
         for tokenizer in tokenizers:
@@ -74,15 +94,10 @@ class Converter(object):
             bitext['tok.' + lang] = tokenizer.tokenize(text)
 
         for lang in bitext.keys():
-            if lang not in self.output_files.keys():
-                self.output_files[lang] = codecs.open(os.path.join(self.output_path, 'bitext.' + lang),
-                                                      'w',
-                                                      encoding='utf-8')
+            self.output.init(lang)
 
         for lang, text in bitext.items():
-            out_file = self.output_files[lang]
-            out_file.write(text)
-            out_file.write('\n')
+            self.output.write(lang, text)
 
         self.output_lines += 1
 
@@ -157,11 +172,6 @@ def normalize_lang(lang):
     if len(result) > 2 and result[2] in ('-', '_'):
         result = result[:2]
     return result
-
-
-def cleanup(output_files):
-    for lang, out_file in output_files.items():
-        out_file.close()
 
 
 def convert(paths, tokenizers=[], bitext_filter=None):
