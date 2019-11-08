@@ -11,7 +11,7 @@ import re
 
 import tinysegmenter
 
-BOUNDARY_REGEX = re.compile(r'\b|\Z')
+BOUNDARY_REGEX = re.compile(r'\b|\Z', re.UNICODE)
 TAG_REGEX = re.compile(r'<[^>]+>')
 
 
