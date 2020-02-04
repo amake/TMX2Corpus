@@ -140,7 +140,7 @@ def extract_tu(tu):
             bitext[lang] = text
     if len(bitext) != 2:
         logging.debug('TU had %d TUV(s). Skipping.', len(bitext))
-        logging.debug('\t' + ElementTree.tostring(tu))
+        logging.debug('\t' + ElementTree.tostring(tu, encoding='unicode'))
         return {}
     return bitext
 
